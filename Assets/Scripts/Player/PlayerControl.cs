@@ -12,14 +12,14 @@ public class PlayerControl : MonoBehaviour {
     Vector3 movement = Vector3.zero;
     Rigidbody rb;
     // Use this for initialization
-    void Awake () {
+    void Awake() {
         rb = GetComponent<Rigidbody>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     void FixedUpdate() {
         Move();
@@ -28,7 +28,7 @@ public class PlayerControl : MonoBehaviour {
         movement.x = Input.GetAxis("Horizontal");
         movement.z = Input.GetAxis("Vertical");
         movement.y = 0;
-        Debug.Log(movement);
+
         movement = movement.normalized * speed * Time.deltaTime;
         if (Input.GetButton("Accelerate"))
             movement *= 2f;

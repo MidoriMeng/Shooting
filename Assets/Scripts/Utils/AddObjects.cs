@@ -6,14 +6,14 @@ public class AddObjects : MonoBehaviour {
     public GameObject[] prefabs;
     public float mapSize = 3f;
 
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     public void AddObjRandomly() {
         int index = (int)Random.Range(0, prefabs.Length - 0.001f);
@@ -29,7 +29,8 @@ public class AddObjects : MonoBehaviour {
         obj.transform.localPosition = pos;
         if (index > 1) {
             obj.transform.localRotation = Quaternion.identity;
-        } else {
+        }
+        else {
             obj.transform.localRotation = Random.rotation;
         }
 

@@ -15,7 +15,7 @@ public class WelcomePage : MonoBehaviour {
 
     public void OpenHighScore() {
         highScore.SetActive(true);
-        for(int i = 0; i < highScores.Length; i++) {
+        for (int i = 0; i < highScores.Length; i++) {
             float score = PlayerPrefs.GetFloat(GameSettings.HIGHSCORENUMBER + i);
             string name = PlayerPrefs.GetString(GameSettings.HIGHSCORENAME + i);
             highScores[i].text = (i + 1) + ".  " + name + "     " + score;
