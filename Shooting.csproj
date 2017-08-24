@@ -79,7 +79,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Enemy\Enemy.cs" />
-    <Compile Include="Assets\Scripts\FSM\StateMachine.cs" />
     <Compile Include="Assets\Scripts\GameSettings.cs" />
     <Compile Include="Assets\Scripts\Level0\CameraSettings.cs" />
     <Compile Include="Assets\Scripts\Level0\WelcomePage.cs" />
