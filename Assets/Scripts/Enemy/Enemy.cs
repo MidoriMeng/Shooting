@@ -28,8 +28,8 @@ public class Enemy : MonoBehaviour {
         personality = Personality.Evil;
         completion = TaskCompletion.NotStarted;
 
-        agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
+        agent = GetComponent<NavMeshAgent>();
     }
 
     void Update() {
@@ -70,8 +70,23 @@ public class Enemy : MonoBehaviour {
 
         public IdleState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Idle; }
         public override void Enter() {
+            
+        }
+
+        public override void Exit() {
+        }
+        public override void Update() {
+            //检查搞事进度
+            switch (context.curTask) {
+                case Task.NormalWaitForCar:
+                case Task.BadWaitForCar:
+                    if (context.agent.remainingDistance < context.agent.stoppingDistance)
+                        context.completion = context.agent.remainingDistance < context.agent.stoppingDistance ?
+                            TaskCompletion.Finished : TaskCompletion.Doing;
+                    break;
+            }
             //执行搞事
-            if (context.completion == TaskCompletion.NotStarted)
+            if (context.completion == TaskCompletion.NotStarted) {
                 switch (context.curTask) {
                     case Task.ComeUp:
                         context.ComeUp();
@@ -83,19 +98,8 @@ public class Enemy : MonoBehaviour {
                         context.WaitForCar(false);
                         break;
                 }
-        }
-
-        public override void Exit() {
-        }
-        public override void Update() {
-            //检查搞事进度
-            switch (context.curTask) {
-                case Task.NormalWaitForCar:
-                case Task.BadWaitForCar:
-                    if (context.agent.remainingDistance < context.agent.stoppingDistance)
-                        ;//arrive
-                    break;
             }
+            
         }
         public override EnemyState CheckTransition() {
             if (context.anim.GetFloat("Speed") > 0.03f) {
