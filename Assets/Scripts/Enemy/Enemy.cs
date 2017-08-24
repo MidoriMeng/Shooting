@@ -3,22 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour {
+    float health;
+    float attack;
+
     public enum EnemyStateEnum {
         Attack, Idle
     };
-    State curState;
+    EnemyState curState;
 
     void Awake() {
-        curState = new IdleState();
+        curState = new IdleState(this);
+        curState.Enter();
     }
 
     void Update() {
-        State newState = curState.CheckTransition();
-        //if(newState
+        EnemyState newState = curState.CheckTransition() as EnemyState;
+        if(newState.type != curState.type) {
+            curState.Exit();
+            curState = newState;
+            curState.Enter();
+        }
 	}
 
     
     public class IdleState : EnemyState {
+        Enemy context;
+
+        public IdleState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Idle; }
         public override void Enter() { }
         public override void Exit() { }
         public override void Update() { }
@@ -26,8 +37,9 @@ public class Enemy : MonoBehaviour {
             return this;
         }
     }
+
+    public class EnemyState : State {
+        public EnemyStateEnum type;
+    }
 }
 
-public class EnemyState : State { 
-
-}
