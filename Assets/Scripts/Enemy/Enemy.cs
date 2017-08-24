@@ -47,15 +47,21 @@ public class Enemy : MonoBehaviour {
         //curMood
     }
 
+    void FreezeAll(bool freeze) {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = freeze? RigidbodyConstraints.FreezeAll: RigidbodyConstraints.None;
+    }
     /// <summary>
     /// 设定agent目标到车门附近，根据是否守规矩决定具体位置
     /// </summary>
     /// <param name="isGood"></param>
     void WaitForCar(bool isGood) {
+        FreezeAll(false);
         agent.SetDestination(isGood ? goodWaitPos.position : badWaitPos.position);
     }
 
     void ComeUp() {
+        FreezeAll(false);
         agent.SetDestination(carPos.position);
     }
 
@@ -116,6 +122,7 @@ public class Enemy : MonoBehaviour {
                 context.curTask = Task.Idle;
                 context.completion = TaskCompletion.Finished;
                 //stop & resume
+                context.FreezeAll(true);
             }
         }
         public override EnemyState CheckTransition() {
