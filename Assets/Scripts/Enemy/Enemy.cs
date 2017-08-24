@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour {
+    public bool use = false;
     public float Speed = 3f;
     public Transform goodWaitPos;
     public Transform badWaitPos;
@@ -37,6 +38,9 @@ public class Enemy : MonoBehaviour {
         anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
         RunStateMachine();
         MoodTransition();
+
+        if (use)
+            AssignTask(Task.ComeUp);
     }
 
     void MoodTransition() {
@@ -55,6 +59,11 @@ public class Enemy : MonoBehaviour {
         agent.SetDestination(carPos.position);
     }
 
+    public void AssignTask(Task newTask) {
+        curTask = newTask;
+        completion = TaskCompletion.NotStarted;
+    }
+
     //-------------------------STATE----------------------------------
     void RunStateMachine() {
         EnemyState newState = curState.CheckTransition();//先check再update
@@ -70,22 +79,13 @@ public class Enemy : MonoBehaviour {
 
         public IdleState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Idle; }
         public override void Enter() {
-            
+            Debug.Log("enter idle state");
         }
 
         public override void Exit() {
         }
         public override void Update() {
-            //检查搞事进度
-            switch (context.curTask) {
-                case Task.NormalWaitForCar:
-                case Task.BadWaitForCar:
-                    if (context.agent.remainingDistance < context.agent.stoppingDistance)
-                        context.completion = context.agent.remainingDistance < context.agent.stoppingDistance ?
-                            TaskCompletion.Finished : TaskCompletion.Doing;
-                    break;
-            }
-            //执行搞事
+            //执行Task
             if (context.completion == TaskCompletion.NotStarted) {
                 switch (context.curTask) {
                     case Task.ComeUp:
@@ -99,12 +99,30 @@ public class Enemy : MonoBehaviour {
                         break;
                 }
             }
-            
+            //检查Task进度
+            switch (context.curTask) {
+                case Task.Idle:
+                    break;
+                case Task.NormalWaitForCar:
+                case Task.BadWaitForCar:
+                    if (context.agent.pathPending)
+                        context.completion = TaskCompletion.Doing;
+                    else
+                        context.completion = context.agent.remainingDistance <= context.agent.stoppingDistance ?
+                            TaskCompletion.Finished : TaskCompletion.Doing;
+                    break;
+            }
+            if (context.completion == TaskCompletion.Finished) {
+                context.curTask = Task.Idle;
+                context.completion = TaskCompletion.Finished;
+                //stop & resume
+            }
         }
         public override EnemyState CheckTransition() {
-            if (context.anim.GetFloat("Speed") > 0.03f) {
+            if (context.anim.GetFloat("Speed") > 0) {
                 return new MoveState(context);
             }
+            
             return this;
         }
     }
@@ -113,13 +131,14 @@ public class Enemy : MonoBehaviour {
 
         public MoveState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Move; }
         public override void Enter() {
+            Debug.Log("enter move state");
         }
         public override void Exit() {
         }
         public override void Update() {
         }
         public override EnemyState CheckTransition() {
-            if (context.anim.GetFloat("Speed") < 0.03f) {
+            if (context.anim.GetFloat("Speed") == 0) {
                 return new IdleState(context);
             }
             return this;
@@ -166,7 +185,7 @@ public class Enemy : MonoBehaviour {
         EatMelon, Evil, Coward
     }
     public enum Task {
-        NormalWaitForCar, BadWaitForCar, ComeUp
+        NormalWaitForCar, BadWaitForCar, ComeUp, Idle
     }
     public enum TaskCompletion {
         NotStarted, Doing, Finished
