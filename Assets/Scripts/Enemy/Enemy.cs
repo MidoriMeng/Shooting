@@ -11,10 +11,12 @@ public class Enemy : MonoBehaviour {
     /*public Transform goodWaitPos;
     public Transform badWaitPos;
     public Transform carPos;*/
-    public float curHealth;
-    public float maxHealth;
+    public float curHP = 50f;
+    public float maxHP = 50f;
     float attack;
     float playerDistance = 0;
+
+    bool attackComplete = false;//bad
 
     EnemyState curState;
     //Mood curMood;
@@ -26,11 +28,10 @@ public class Enemy : MonoBehaviour {
     Animator anim;
 
     void Awake() {
-        personality = (Personality)(int)Random.Range(0, 2.999f);//性格在这里随机赋值？
-        Debug.Log(personality);
-        curState = new IdleState(this);
-
-        personality = Personality.Evil;
+        personality = Personality.EatMelon;
+        // Debug.Log(personality);
+        alarmHPPercent = Random.Range(0.2f, 0.5f);
+        //personality = Personality.Evil;
         //completion = TaskCompletion.NotStarted;
 
         anim = GetComponent<Animator>();
@@ -38,6 +39,7 @@ public class Enemy : MonoBehaviour {
     }
 
     void Start() {
+        curState = new IdleState(this, Singleton<Player>.Instance);
         curState.Enter();
     }
 
@@ -56,6 +58,8 @@ public class Enemy : MonoBehaviour {
     void MoodTransition() {
         //curMood
     }
+
+    public void CompleteAttack() { attackComplete = true; }
 
     /// <summary>
     /// 设定agent目标到车门附近，根据是否守规矩决定具体位置
@@ -80,10 +84,14 @@ public class Enemy : MonoBehaviour {
         player.curHealth -= attack;
     }
 
-    
+    public float HPPercent {
+        get {
+            Debug.Log(curHP + "   " + maxHP);
+            return curHP / maxHP; }
+    }
     //-------------------------STATE----------------------------------
     void RunStateMachine() {
-        EnemyState newState = CheckTransition();//先check再update
+        EnemyState newState = curState.CheckTransition();//先check再update
         if (newState.type != curState.type) {
             curState.Exit();
             curState = newState;
@@ -92,27 +100,16 @@ public class Enemy : MonoBehaviour {
         curState.Update();
     }
 
-    protected virtual EnemyState CheckTransition() { return curState; }
-    /*EnemyState CheckTransition() {
-        if (anim.GetFloat("Speed") > 0) {
-            return new MoveState(this);
-        }
-        if (Vector3.Distance(Singleton<PlayerMovementControl>.Instance.transform.position, transform.position) <= attackDistance) {
-            return new AttackState(this);
-        }
-        if (this.anim.GetFloat("Speed") == 0) {
-             return new IdleState(this);
-         }
-    }*/
     public class IdleState : EnemyState {
 
-        public IdleState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Idle; }
+        public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
             Debug.Log("enter idle state");
-
+            context.agent.enabled = false;
         }
 
         public override void Exit() {
+            context.agent.enabled = true;
         }
         public override void Update() {
             //执行Task
@@ -149,82 +146,120 @@ public class Enemy : MonoBehaviour {
                 context.agent.enabled = false;
             }*/
         }
+
+        public override EnemyState CheckTransition() {
+            switch (context.personality) {
+                case Personality.EatMelon:
+                    //主角在攻击范围内：攻击
+                    if (Vector3.Distance(context.transform.position, player.transform.position) < context.attackDistance)
+                        return new AttackState(context, player);
+                    //自身血量低于警戒值：逃跑
+                    Debug.Log(context.HPPercent + "   " + context.alarmHPPercent);
+                    if (context.HPPercent <= context.alarmHPPercent)
+                        return new FleeState(context, player);
+                    break;
+                    //TODO: 参照表格
+            }
+            
+            //默认：idle
+            return this;
+        }
     }
 
-    public class MoveState : EnemyState {
-        Vector3 target;
+    public class FleeState : EnemyState {
+        Vector3 destination;
         NavMeshAgent agent;
 
-        public MoveState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Move; }
+        public FleeState(Enemy enemy, Player player) : base(enemy, player) {  type = EnemyStateEnum.Flee; }
+
         public override void Enter() {
-            Debug.Log("enter move state");
+            Debug.Log("enter flee state");
             agent = context.agent;
-            target = agent.destination;
+            
+            switch (context.personality) {
+                case Personality.EatMelon://逃到警戒范围外
+                    Vector3 dir = Vector3.Normalize(context.transform.position - player.transform.position);
+                    destination = context.transform.position + dir * context.alarmDistance;
+                    break;
+                    //@TODO
+            }
+            agent.destination = destination;
         }
         public override void Exit() {
         }
         public override void Update() {
         }
-        /*public override EnemyState CheckTransition() {
+        public override EnemyState CheckTransition() {
             if (agent.remainingDistance <= agent.stoppingDistance) {
-                return new IdleState(context);
-            }
-            if (context.playerDistance <= context.attackDistance) {
-                return new AttackState(context);
+                return new IdleState(context, player);
             }
             return this;
-        }*/
+        }
     }
 
     public class AttackState : EnemyState {
-        public AttackState(Enemy enemy) { context = enemy; type = EnemyStateEnum.Attack; }
+        public AttackState(Enemy enemy, Player player): base(enemy, player) {  type = EnemyStateEnum.Attack; }
+
+        public override void Enter() {
+            Debug.Log("enter attack state");
+            context.anim.SetTrigger("Attack");
+            context.attackComplete = false;
+
+        }
         public override void Update() {
-            base.Update();
         }
 
-        /*public override EnemyState CheckTransition() {
-            if (context.anim.GetFloat("Speed") == 0) {
+        public override EnemyState CheckTransition() {
+            if (context.attackComplete)
+                return new IdleState(context, player);
+            /*if (context.anim.GetFloat("Speed") == 0) {
                 return new IdleState(context);
-            }
-            if (context.playerDistance <= context.attackDistance) {
-                return new AttackState(context);
-            }
+            }*/
             return this;
-        }*/
+        }
     }
 
-    public class EnemyState {
+    public abstract class EnemyState {
         public EnemyStateEnum type;
         protected Enemy context;
+        protected Player player;
 
+        public EnemyState(Enemy enemy, Player player) { context = enemy; this.player = player; }
         public virtual void Enter() { }
         public virtual void Exit() { }
         public virtual void Update() { }
-        //public virtual EnemyState CheckTransition() { return this; }
+        public virtual EnemyState CheckTransition() { return this; }
     }
 
     //----------------ENUMS-------------------------------
     public enum EnemyStateEnum {
-        Idle, Move, Attack
+        Idle, Flee, Attack
     };
 
     public enum Mood {
         Normal, Angry, Frightened
     }
 
-    public class Personality { public virtual EnemyStateEnum CheckTransition(Player player) { return EnemyStateEnum.Idle; } }
-
-    class EatMelonPersona : Personality {
-        public override EnemyStateEnum CheckTransition(Player player) { return EnemyStateEnum.Idle; }
+    public enum PersonaEnum {
+        EatMelon, Coward, Evil
     }
-    class EvilPersona : Personality { }
-    class CowardPersona : Personality { }
 
-   /* public enum Task {
-        NormalWaitForCar, BadWaitForCar, ComeUp, Idle
+    public enum Personality {
+        EatMelon, Evil, Coward
+    };
+
+    /* public enum Task {
+         NormalWaitForCar, BadWaitForCar, ComeUp, Idle
+     }
+     public enum TaskCompletion {
+         NotStarted, Doing, Finished
+     }*/
+
+    public void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, alarmDistance);
     }
-    public enum TaskCompletion {
-        NotStarted, Doing, Finished
-    }*/
 }
 
