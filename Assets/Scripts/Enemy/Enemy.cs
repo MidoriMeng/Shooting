@@ -13,8 +13,9 @@ public class Enemy : MonoBehaviour {
     public Transform carPos;*/
     public float curHP = 50f;
     public float maxHP = 50f;
-    float attack;
+    public float attack;
     float playerDistance = 0;
+    Player player;
 
     bool attackComplete = false;//bad
 
@@ -28,7 +29,7 @@ public class Enemy : MonoBehaviour {
     Animator anim;
 
     void Awake() {
-        personality = Personality.EatMelon;
+        personality = Personality.Coward;
         // Debug.Log(personality);
         alarmHPPercent = Random.Range(0.2f, 0.5f);
         //personality = Personality.Evil;
@@ -39,7 +40,8 @@ public class Enemy : MonoBehaviour {
     }
 
     void Start() {
-        curState = new IdleState(this, Player.Instance);
+        player = Player.Instance;
+        curState = new IdleState(this, player);
         curState.Enter();
     }
 
@@ -80,8 +82,9 @@ public class Enemy : MonoBehaviour {
          completion = TaskCompletion.NotStarted;
      }*/
 
-    public void Attack(Player player) {
-        player.curHealth -= attack;
+    public void Attack() {
+        player.curHP -= attack;
+        Debug.Log(player.curHP);
     }
 
     public float HPPercent {
@@ -148,12 +151,20 @@ public class Enemy : MonoBehaviour {
         public override EnemyState CheckTransition() {
             switch (context.personality) {
                 case Personality.EatMelon:
-                    //主角在攻击范围内：攻击
-                    if (context.playerDistance < context.attackDistance)
-                        return new AttackState(context, player);
                     //自身血量低于警戒值：逃跑
                     if (context.HPPercent <= context.alarmHPPercent && context.playerDistance < context.alarmDistance)
                         return new FleeState(context, player);
+                    //主角在攻击范围内：攻击
+                    if (context.playerDistance < context.attackDistance)
+                        return new AttackState(context, player);
+                    break;
+                case Personality.Coward:
+                    //自身血量非满且主角在警戒范围内：逃跑
+                    if (context.HPPercent < 1f && context.playerDistance < context.alarmDistance)
+                        return new FleeState(context, player);
+                    //主角血量低于血量警戒值且在攻击范围内：攻击
+                    if (player.HPPercent < player.alarmHPPercent && context.playerDistance < context.attackDistance)
+                        return new AttackState(context, player);
                     break;
                 //TODO: 参照表格
             }
@@ -175,26 +186,32 @@ public class Enemy : MonoBehaviour {
 
             switch (context.personality) {
                 case Personality.EatMelon://逃到警戒范围外
-                    Vector3 dir = Vector3.Normalize(context.transform.position - player.transform.position);
-                    Vector3 startPoint = context.transform.position;
-                    Vector3 delta = dir * context.alarmDistance;
-                    Vector3 endPoint = context.transform.position + dir * context.alarmDistance;
-                    Debug.Log("endpoint: " + endPoint);
-                    //从结束点到开始点依次采样，如果成功则移动到那里
-                    NavMeshHit hit;
-                    Vector3 pos = startPoint;
-                    for (float i = 1f; i > 0; i -= 0.1f) {
-                        pos = startPoint + delta * i;
-                        if (NavMesh.SamplePosition(pos, out hit, 1.0f, NavMesh.AllAreas)) {
-                            destination = pos;
-                            Debug.Log("select: " + destination);
-                            break;
-                        }
-                    }
+                    RunAway(context.alarmDistance);
+                    break;
+                case Personality.Coward://逃到2倍警戒范围外
+                    RunAway(context.alarmDistance * 2f);
                     break;
                 //@TODO
             }
             agent.destination = destination;
+        }
+
+        void RunAway(float distance) {
+            Vector3 dir = Vector3.Normalize(context.transform.position - player.transform.position);
+            Vector3 startPoint = context.transform.position;
+            Vector3 delta = dir * distance;
+            //Vector3 endPoint = context.transform.position + dir * context.alarmDistance;
+            //从结束点到开始点依次采样，如果成功则移动到那里
+            NavMeshHit hit;
+            Vector3 pos = startPoint;
+            for (float i = 1f; i > 0; i -= 0.1f) {
+                pos = startPoint + delta * i;
+                if (NavMesh.SamplePosition(pos, out hit, 1.0f, NavMesh.AllAreas)) {
+                    destination = pos;
+                    //Debug.Log("select: " + destination);
+                    break;
+                }
+            }
         }
         public override void Exit() {
         }
