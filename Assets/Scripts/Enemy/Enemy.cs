@@ -39,7 +39,7 @@ public class Enemy : MonoBehaviour {
     }
 
     void Start() {
-        curState = new IdleState(this, Singleton<Player>.Instance);
+        curState = new IdleState(this, Player.Instance);
         curState.Enter();
     }
 
@@ -48,7 +48,7 @@ public class Enemy : MonoBehaviour {
 
         //更新数值
         anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
-        playerDistance = Vector3.Distance(Singleton<Player>.Instance.transform.position, transform.position);
+        playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
 
         //状态机更新
         RunStateMachine();
@@ -85,9 +85,7 @@ public class Enemy : MonoBehaviour {
     }
 
     public float HPPercent {
-        get {
-            Debug.Log(curHP + "   " + maxHP);
-            return curHP / maxHP; }
+        get { return curHP / maxHP; }
     }
     //-------------------------STATE----------------------------------
     void RunStateMachine() {
@@ -151,16 +149,15 @@ public class Enemy : MonoBehaviour {
             switch (context.personality) {
                 case Personality.EatMelon:
                     //主角在攻击范围内：攻击
-                    if (Vector3.Distance(context.transform.position, player.transform.position) < context.attackDistance)
+                    if (context.playerDistance < context.attackDistance)
                         return new AttackState(context, player);
                     //自身血量低于警戒值：逃跑
-                    Debug.Log(context.HPPercent + "   " + context.alarmHPPercent);
-                    if (context.HPPercent <= context.alarmHPPercent)
+                    if (context.HPPercent <= context.alarmHPPercent && context.playerDistance < context.alarmDistance)
                         return new FleeState(context, player);
                     break;
-                    //TODO: 参照表格
+                //TODO: 参照表格
             }
-            
+
             //默认：idle
             return this;
         }
@@ -170,18 +167,32 @@ public class Enemy : MonoBehaviour {
         Vector3 destination;
         NavMeshAgent agent;
 
-        public FleeState(Enemy enemy, Player player) : base(enemy, player) {  type = EnemyStateEnum.Flee; }
+        public FleeState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Flee; }
 
         public override void Enter() {
             Debug.Log("enter flee state");
             agent = context.agent;
-            
+
             switch (context.personality) {
                 case Personality.EatMelon://逃到警戒范围外
                     Vector3 dir = Vector3.Normalize(context.transform.position - player.transform.position);
-                    destination = context.transform.position + dir * context.alarmDistance;
+                    Vector3 startPoint = context.transform.position;
+                    Vector3 delta = dir * context.alarmDistance;
+                    Vector3 endPoint = context.transform.position + dir * context.alarmDistance;
+                    Debug.Log("endpoint: " + endPoint);
+                    //从结束点到开始点依次采样，如果成功则移动到那里
+                    NavMeshHit hit;
+                    Vector3 pos = startPoint;
+                    for (float i = 1f; i > 0; i -= 0.1f) {
+                        pos = startPoint + delta * i;
+                        if (NavMesh.SamplePosition(pos, out hit, 1.0f, NavMesh.AllAreas)) {
+                            destination = pos;
+                            Debug.Log("select: " + destination);
+                            break;
+                        }
+                    }
                     break;
-                    //@TODO
+                //@TODO
             }
             agent.destination = destination;
         }
@@ -198,7 +209,7 @@ public class Enemy : MonoBehaviour {
     }
 
     public class AttackState : EnemyState {
-        public AttackState(Enemy enemy, Player player): base(enemy, player) {  type = EnemyStateEnum.Attack; }
+        public AttackState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Attack; }
 
         public override void Enter() {
             Debug.Log("enter attack state");

@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
     public float curHealth;
-	// Use this for initialization
-	void Start () {
-		
+    private static Player _instance;
+
+    void Awake () {
+        _instance = this;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
+
+    public static Player Instance { get { return _instance; } }
 }

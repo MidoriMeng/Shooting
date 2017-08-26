@@ -83,9 +83,14 @@
     <Compile Include="Assets\Scripts\GameSettings.cs" />
     <Compile Include="Assets\Scripts\Level0\WelcomePage.cs" />
     <Compile Include="Assets\Scripts\MouseLook.cs" />
-    <Compile Include="Assets\Scripts\Player\PlayerControl.cs" />
+    <Compile Include="Assets\Scripts\Player\Player.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerMovementControl.cs" />
     <Compile Include="Assets\Scripts\Utils\AddObjects.cs" />
     <Compile Include="Assets\Scripts\Utils\Singleton.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Models\Shaders\Vertex Color.shader" />
+    <None Include="Assets\UnityChan\license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2012\UnityVS.CSharp.targets" />
 </Project>
