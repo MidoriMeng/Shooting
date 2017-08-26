@@ -17,7 +17,6 @@ public class Enemy : MonoBehaviour {
     float playerDistance = 0;
     Player player;
 
-    bool attackComplete = false;//bad
 
     EnemyState curState;
     //Mood curMood;
@@ -29,7 +28,7 @@ public class Enemy : MonoBehaviour {
     Animator anim;
 
     void Awake() {
-        personality = Personality.Coward;
+        personality = Personality.Evil;
         // Debug.Log(personality);
         alarmHPPercent = Random.Range(0.2f, 0.5f);
         //personality = Personality.Evil;
@@ -61,7 +60,15 @@ public class Enemy : MonoBehaviour {
         //curMood
     }
 
-    public void CompleteAttack() { attackComplete = true; }
+    public void Attack() {
+        player.curHP -= attack;
+        Debug.Log(player.curHP);
+    }
+
+    public void CompleteAttack() {
+        AttackState s = curState as AttackState;
+        s.AttackComplete();
+    }
 
     /// <summary>
     /// 设定agent目标到车门附近，根据是否守规矩决定具体位置
@@ -82,10 +89,6 @@ public class Enemy : MonoBehaviour {
          completion = TaskCompletion.NotStarted;
      }*/
 
-    public void Attack() {
-        player.curHP -= attack;
-        Debug.Log(player.curHP);
-    }
 
     public float HPPercent {
         get { return curHP / maxHP; }
@@ -96,9 +99,12 @@ public class Enemy : MonoBehaviour {
         if (newState.type != curState.type) {
             curState.Exit();
             curState = newState;
+            Debug.Log(transform.position.y);
             curState.Enter();
+            Debug.Log(transform.position.y);
         }
         curState.Update();
+        Debug.Log(transform.position.y);
     }
 
     public class IdleState : EnemyState {
@@ -166,7 +172,10 @@ public class Enemy : MonoBehaviour {
                     if (player.HPPercent < player.alarmHPPercent && context.playerDistance < context.attackDistance)
                         return new AttackState(context, player);
                     break;
-                //TODO: 参照表格
+                case Personality.Evil:
+                    if (context.playerDistance < context.alarmDistance)
+                        return new AttackState(context, player);
+                    break;
             }
 
             //默认：idle
@@ -191,7 +200,7 @@ public class Enemy : MonoBehaviour {
                 case Personality.Coward://逃到2倍警戒范围外
                     RunAway(context.alarmDistance * 2f);
                     break;
-                //@TODO
+                //Evil: never flee
             }
             agent.destination = destination;
         }
@@ -226,23 +235,31 @@ public class Enemy : MonoBehaviour {
     }
 
     public class AttackState : EnemyState {
+        enum AttackProcess { finding, attacking, complete };
+        AttackProcess state = AttackProcess.finding;
         public AttackState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Attack; }
+
+        public void AttackComplete() {
+            state = AttackProcess.complete;
+        }
 
         public override void Enter() {
             Debug.Log("enter attack state");
-            context.anim.SetTrigger("Attack");
-            context.attackComplete = false;
-
+            context.agent.destination = player.transform.position;
         }
+
         public override void Update() {
+            if (state == AttackProcess.finding)
+                if (context.agent.remainingDistance < context.attackDistance) {
+                    context.anim.SetTrigger("Attack");
+                    context.agent.destination = context.transform.position;
+                    state = AttackProcess.attacking;
+                }
         }
 
         public override EnemyState CheckTransition() {
-            if (context.attackComplete)
+            if (state == AttackProcess.complete)
                 return new IdleState(context, player);
-            /*if (context.anim.GetFloat("Speed") == 0) {
-                return new IdleState(context);
-            }*/
             return this;
         }
     }

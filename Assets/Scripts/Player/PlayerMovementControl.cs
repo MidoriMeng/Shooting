@@ -32,7 +32,6 @@ public class PlayerMovementControl : MonoBehaviour {
         movement = movement.normalized * speed * Time.deltaTime;
         if (Input.GetButton("Accelerate"))
             movement *= 2f;
-        Vector3 newPos = transform.position + movement;
         rb.MovePosition(transform.position + movement.z * transform.forward + movement.x * transform.right + movement.y * transform.up);
     }
 }
