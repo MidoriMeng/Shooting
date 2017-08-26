@@ -61,8 +61,19 @@ public class Enemy : MonoBehaviour {
     }
 
     public void Attack() {
-        player.curHP -= attack;
-        Debug.Log(player.curHP);
+        float atk = attack;
+        switch (personality) { 
+            case Personality.EatMelon:
+                atk = Random.Range(0.8f, 1.2f);
+                break;
+            case Personality.Coward:
+                atk = Random.Range(0.5f, 1.5f);
+                break;
+            case Personality.Evil:
+                atk = Random.Range(0.9f, 1.5f);
+                break;
+        }
+        player.curHP -= atk;        
     }
 
     public void CompleteAttack() {
@@ -99,12 +110,9 @@ public class Enemy : MonoBehaviour {
         if (newState.type != curState.type) {
             curState.Exit();
             curState = newState;
-            Debug.Log(transform.position.y);
             curState.Enter();
-            Debug.Log(transform.position.y);
         }
         curState.Update();
-        Debug.Log(transform.position.y);
     }
 
     public class IdleState : EnemyState {
@@ -251,6 +259,11 @@ public class Enemy : MonoBehaviour {
         public override void Update() {
             if (state == AttackProcess.finding)
                 if (context.agent.remainingDistance < context.attackDistance) {
+                    //如果玩家已离开
+                    if (context.playerDistance > context.attackDistance) {
+                        state = AttackProcess.complete;
+                        return;
+                    }
                     context.anim.SetTrigger("Attack");
                     context.agent.destination = context.transform.position;
                     state = AttackProcess.attacking;
