@@ -17,23 +17,22 @@ public class Enemy : MonoBehaviour {
     float playerDistance = 0;
     Player player;
 
+    public Transform waitPos;
+
 
     EnemyState curState;
     //Mood curMood;
     Personality personality;
-    //public Task curTask = Task.NormalWaitForCar;
-    //TaskCompletion completion;
-
-    NavMeshAgent agent;
-    Animator anim;
+    public NavMeshAgent agent;
+    public Animator anim;
+    public Command command;
 
     void Awake() {
         personality = Personality.Evil;
         // Debug.Log(personality);
         alarmHPPercent = Random.Range(0.2f, 0.5f);
-        //personality = Personality.Evil;
-        //completion = TaskCompletion.NotStarted;
-
+        //command = new Command();
+        command = new NormalWaitForCarCmd(waitPos.position);
         anim = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
     }
@@ -45,21 +44,14 @@ public class Enemy : MonoBehaviour {
     }
 
     void Update() {
-        //决策是否搞事(curTask)
-
         //更新数值
         anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
         playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
 
         //状态机更新
         RunStateMachine();
-        MoodTransition();
     }
-
-    void MoodTransition() {
-        //curMood
-    }
-
+    
     public void Attack() {
         float atk = attack;
         switch (personality) { 
@@ -116,50 +108,20 @@ public class Enemy : MonoBehaviour {
     }
 
     public class IdleState : EnemyState {
-
+        Command curCmd;
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
             Debug.Log("enter idle state");
             context.agent.enabled = false;
+            curCmd = context.command;
         }
 
         public override void Exit() {
             context.agent.enabled = true;
         }
         public override void Update() {
-            //执行Task
-            /*if (context.completion == TaskCompletion.NotStarted) {
-                switch (context.curTask) {
-                    case Task.ComeUp:
-                        context.ComeUp();
-                        break;
-                    case Task.NormalWaitForCar:
-                        context.WaitForCar(true);
-                        break;
-                    case Task.BadWaitForCar:
-                        context.WaitForCar(false);
-                        break;
-                }
-            }
-            //检查Task进度
-            switch (context.curTask) {
-                case Task.Idle:
-                    break;
-                case Task.NormalWaitForCar:
-                case Task.BadWaitForCar:
-                    if (context.agent.pathPending)
-                        context.completion = TaskCompletion.Doing;
-                    else
-                        context.completion = context.agent.remainingDistance <= context.agent.stoppingDistance ?
-                            TaskCompletion.Finished : TaskCompletion.Doing;
-                    break;
-            }
-            if (context.completion == TaskCompletion.Finished) {
-                context.curTask = Task.Idle;
-                context.completion = TaskCompletion.Finished;
-                //stop & resume
-                context.agent.enabled = false;
-            }*/
+            //执行Command
+            curCmd.Run(context);
         }
 
         public override EnemyState CheckTransition() {
@@ -305,13 +267,6 @@ public class Enemy : MonoBehaviour {
     public enum Personality {
         EatMelon, Evil, Coward
     };
-
-    /* public enum Task {
-         NormalWaitForCar, BadWaitForCar, ComeUp, Idle
-     }
-     public enum TaskCompletion {
-         NotStarted, Doing, Finished
-     }*/
 
     public void OnDrawGizmos() {
         Gizmos.color = Color.red;
