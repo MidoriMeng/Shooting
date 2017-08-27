@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour {
+public class Enemy : Character {
     public float Speed = 3f;
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
-    public float alarmHPPercent;
     /*public Transform goodWaitPos;
     public Transform badWaitPos;
     public Transform carPos;*/
-    public float curHP = 50f;
-    public float maxHP = 50f;
-    public float attack;
     float playerDistance = 0;
     Player player;
 
@@ -36,6 +32,8 @@ public class Enemy : MonoBehaviour {
         command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
         anim = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        atk = 10f;
+        def = 2f;
     }
 
     void Start() {
@@ -52,21 +50,25 @@ public class Enemy : MonoBehaviour {
         //状态机更新
         RunStateMachine();
     }
-    
-    public void Attack() {
-        float atk = attack;
+
+    public override float MakeDamage() {
+        float dmg = 0;
         switch (personality) { 
             case Personality.EatMelon:
-                atk = Random.Range(0.8f, 1.2f);
+                dmg = Random.Range(0.8f, 1.2f);
                 break;
             case Personality.Coward:
-                atk = Random.Range(0.5f, 1.5f);
+                dmg = Random.Range(0.5f, 1.5f);
                 break;
             case Personality.Evil:
-                atk = Random.Range(0.9f, 1.5f);
+                dmg = Random.Range(0.9f, 1.5f);
                 break;
         }
-        player.curHP -= atk;        
+        return dmg * atk;
+    }
+
+    public override void Attack(Character c) {
+        base.Attack(player);
     }
 
     public void CompleteAttack() {
@@ -77,29 +79,7 @@ public class Enemy : MonoBehaviour {
     public void DoEvil(float delta = 0.2f) {
         guiltyPercentage += delta;
     }
-    /// <summary>
-    /// 设定agent目标到车门附近，根据是否守规矩决定具体位置
-    /// </summary>
-    /// <param name="isGood"></param>
-    /* void WaitForCar(bool isGood) {
-         agent.enabled = true;
-         agent.SetDestination(isGood ? goodWaitPos.position : badWaitPos.position);
-     }
 
-     void ComeUp() {
-         agent.enabled = true;
-         agent.SetDestination(carPos.position);
-     }
-
-     public void AssignTask(Task newTask) {
-         curTask = newTask;
-         completion = TaskCompletion.NotStarted;
-     }*/
-
-
-    public float HPPercent {
-        get { return curHP / maxHP; }
-    }
     //-------------------------STATE----------------------------------
     void RunStateMachine() {
         EnemyState newState = curState.CheckTransition();//先check再update
