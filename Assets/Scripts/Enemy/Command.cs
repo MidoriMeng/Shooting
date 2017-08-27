@@ -10,12 +10,15 @@ public class Command {
     public virtual void Run(Enemy enemy) { }
 }
 
-public class NormalWaitForCarCmd : Command {
+public class GoAndWaitCmd : Command {
     Vector3 waitPosition;
-    public NormalWaitForCarCmd(Vector3 waitPos) {
+    bool evil;
+    public float guiltIncreaseSpeed = 0.001f;
+    public GoAndWaitCmd(Vector3 waitPos, bool evil, TypeEnum type) {
         waitPosition = waitPos;
-        commandType = TypeEnum.NormalWaitForCar;
+        commandType = type;
         completion = CompletionEnum.NotStarted;
+        this.evil = evil;
     }
 
     public override void Run(Enemy enemy) {
@@ -29,6 +32,10 @@ public class NormalWaitForCarCmd : Command {
                 completion = CompletionEnum.Finished;
                 agent.enabled = false;
             }
+        }
+        else {
+            if (evil)
+                enemy.DoEvil(guiltIncreaseSpeed);//与普通等车区别在此：增加罪恶值
         }
     }
 }

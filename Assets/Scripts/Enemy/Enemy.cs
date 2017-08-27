@@ -26,13 +26,14 @@ public class Enemy : MonoBehaviour {
     public NavMeshAgent agent;
     public Animator anim;
     public Command command;
+    private float guiltyPercentage = 0;
 
     void Awake() {
         personality = Personality.Evil;
         // Debug.Log(personality);
         alarmHPPercent = Random.Range(0.2f, 0.5f);
         //command = new Command();
-        command = new NormalWaitForCarCmd(waitPos.position);
+        command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
         anim = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
     }
@@ -73,6 +74,9 @@ public class Enemy : MonoBehaviour {
         s.AttackComplete();
     }
 
+    public void DoEvil(float delta = 0.2f) {
+        guiltyPercentage += delta;
+    }
     /// <summary>
     /// 设定agent目标到车门附近，根据是否守规矩决定具体位置
     /// </summary>
