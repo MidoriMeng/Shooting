@@ -66,13 +66,13 @@ public class MouseLook : MonoBehaviour {
 
             Vector3 rotation = (originalRotation * xQuaternion * yQuaternion).eulerAngles;
             if (isPlayerRotate) {
-                //playerRB.MoveRotation(originalRotation * xQuaternion * yQuaternion);
-                Vector3 originRotation = playerRB.rotation.eulerAngles;
-                playerRB.MoveRotation(Quaternion.Euler(originalRotation.x,rotation.y,originalRotation.z));
-                transform.localRotation = Quaternion.Euler(rotation.x, originalRotation.y, rotation.z);
-            } else
+                transform.localRotation = originalRotation * yQuaternion;
+                playerRB.MoveRotation(originalRotation * xQuaternion);
+            }
+            else
                 transform.localRotation = originalRotation * xQuaternion * yQuaternion;
-        } else if (axes == RotationAxes.MouseX) {
+        }
+        else if (axes == RotationAxes.MouseX) {
             rotAverageX = 0f;
 
             rotationX += Input.GetAxis("Mouse X") * sensitivityX;
@@ -91,7 +91,8 @@ public class MouseLook : MonoBehaviour {
 
             Quaternion xQuaternion = Quaternion.AngleAxis(rotAverageX, Vector3.up);
             transform.localRotation = originalRotation * xQuaternion;
-        } else {
+        }
+        else {
             rotAverageY = 0f;
 
             rotationY += Input.GetAxis("Mouse Y") * sensitivityY;

@@ -58,7 +58,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		col = GetComponent<CapsuleCollider>();
 		rb = GetComponent<Rigidbody>();
 		//メインカメラを取得する
-		cameraObject = GameObject.FindWithTag("MainCamera");
+        cameraObject = Singleton<CameraSettings>.Instance.ActiveCamera.gameObject;
 		// CapsuleColliderコンポーネントのHeight、Centerの初期値を保存する
 		orgColHight = col.height;
 		orgVectColCenter = col.center;
@@ -123,7 +123,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		// 現在のベースレイヤーがjumpStateの時
 		else if(currentBaseState.fullPathHash == jumpState)
 		{
-			cameraObject.SendMessage("setCameraPositionJumpView");	// ジャンプ中のカメラに変更
+			//cameraObject.SendMessage("setCameraPositionJumpView");	// ジャンプ中のカメラに変更
 			// ステートがトランジション中でない場合
 			if(!anim.IsInTransition(0))
 			{
@@ -157,7 +157,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 					}
 				}
 				// Jump bool値をリセットする（ループしないようにする）				
-				anim.SetTrigger("Jump");
+				//anim.SetTrigger("Jump");
 			}
 		}
 		// IDLE中の処理
@@ -186,7 +186,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		}
 	}
 
-	void OnGUI()
+	/*void OnGUI()
 	{
 		GUI.Box(new Rect(Screen.width -260, 10 ,250 ,150), "Interaction");
 		GUI.Label(new Rect(Screen.width -245,30,250,30),"Up/Down Arrow : Go Forwald/Go Back");
@@ -195,7 +195,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		GUI.Label(new Rect(Screen.width -245,90,250,30),"Hit Spase key while Stopping : Rest");
 		GUI.Label(new Rect(Screen.width -245,110,250,30),"Left Control : Front Camera");
 		GUI.Label(new Rect(Screen.width -245,130,250,30),"Alt : LookAt Camera");
-	}
+	}*/
 
 
 	// キャラクターのコライダーサイズのリセット関数

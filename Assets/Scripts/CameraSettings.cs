@@ -17,11 +17,12 @@ public class CameraSettings : MonoBehaviour {
         }
     }
 
-    void Start() {
-
-    }
-
-    void Update() {
-
+    public Camera ActiveCamera {
+        get {
+            if (firstCamera.activeInHierarchy)
+                return firstCamera.GetComponent<Camera>();
+            else
+                return thirdCamera.GetComponent<Camera>();
+        }
     }
 }
