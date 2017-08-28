@@ -13,27 +13,24 @@ public class Enemy : Character {
     float playerDistance = 0;
     Player player;
 
-    public Transform waitPos;
-
-
     EnemyState curState;
-    //Mood curMood;
-    Personality personality;
+    public Personality personality = Personality.EatMelon;
+    [HideInInspector]
     public NavMeshAgent agent;
-    public Animator anim;
+    [HideInInspector]
     public Command command;
     private float guiltyPercentage = 0;
+    Collider collider;
 
     void Awake() {
-        personality = Personality.Evil;
-        // Debug.Log(personality);
+        AwakeBase();
         alarmHPPercent = Random.Range(0.2f, 0.5f);
-        //command = new Command();
-        command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
-        anim = GetComponent<Animator>();
+        command = new Command();
+        //command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
         agent = GetComponent<NavMeshAgent>();
         atk = 10f;
         def = 2f;
+        collider = GetComponent<Collider>();
     }
 
     void Start() {
@@ -44,7 +41,7 @@ public class Enemy : Character {
 
     void Update() {
         //更新数值
-        anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
+        //anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
         playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
 
         //状态机更新
@@ -80,6 +77,10 @@ public class Enemy : Character {
         guiltyPercentage += delta;
     }
 
+    protected override void DeadTemplate() {
+        collider.enabled = false;
+    }
+
     //-------------------------STATE----------------------------------
     void RunStateMachine() {
         EnemyState newState = curState.CheckTransition();//先check再update
@@ -95,7 +96,7 @@ public class Enemy : Character {
         Command curCmd;
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
-            Debug.Log("enter idle state");
+            //Debug.Log("enter idle state");
             context.agent.enabled = false;
             curCmd = context.command;
         }
@@ -144,7 +145,7 @@ public class Enemy : Character {
         public FleeState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Flee; }
 
         public override void Enter() {
-            Debug.Log("enter flee state");
+            //Debug.Log("enter flee state");
             agent = context.agent;
 
             switch (context.personality) {
@@ -198,7 +199,7 @@ public class Enemy : Character {
         }
 
         public override void Enter() {
-            Debug.Log("enter attack state");
+            //Debug.Log("enter attack state");
             context.agent.destination = player.transform.position;
         }
 
