@@ -81,7 +81,7 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
         else {				// 入力デバイスの水平軸をhで定義
             velocity = new Vector3(0, 0, v);
         }*/
-		anim.SetFloat("Speed", v);							// Animator側で設定している"Speed"パラメタにvを渡す
+		anim.SetFloat("Speed", v + keyboardH);							// Animator側で設定している"Speed"パラメタにvを渡す
 		anim.SetFloat("Direction", keyboardH); 						// Animator側で設定している"Direction"パラメタにhを渡す
 		anim.speed = animSpeed;								// Animatorのモーション再生速度に animSpeedを設定する
 		currentBaseState = anim.GetCurrentAnimatorStateInfo(0);	// 参照用のステート変数にBase Layer (0)の現在のステートを設定する

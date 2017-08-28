@@ -25,7 +25,7 @@ public class Character : MonoBehaviour {
     }
 
 
-    
+
     public virtual float MakeDamage() { return atk; }
     /// <summary>
     /// 可以返回负值
@@ -38,14 +38,19 @@ public class Character : MonoBehaviour {
     /// 产生伤害，敌人受到伤害
     /// </summary>
     /// <param name="c"></param>
-    public virtual void Attack(Character c/*, Vector3 point*/) { 
-        float dmg = c.ReceiveDamage(MakeDamage());
-        c.curHP -= Mathf.Clamp(dmg, 1, dmg);
-        c.curHP = Mathf.Clamp(c.curHP, 0, c.maxHP);
-        if (c.curHP == 0) {
-            c.Dead();
+    public virtual void Attack(Character c/*, Vector3 point*/) {
+        if (!c.dead) {
+            float dmg = c.ReceiveDamage(MakeDamage());
+            c.curHP -= Mathf.Clamp(dmg, 1, dmg);
+            c.curHP = Mathf.Clamp(c.curHP, 0, c.maxHP);
+
+            if (c.curHP == 0) {
+                c.Dead();
+            }
+            else
+                c.anim.SetTrigger("Light Damage");
+            Debug.Log(name + " attack " + c.name + ", damage: " + dmg);
         }
-        Debug.Log(name + " attack " + c.name + ", damage: " + dmg);
     }
 
     public float HPPercent {

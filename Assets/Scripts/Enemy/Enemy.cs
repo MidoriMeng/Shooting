@@ -43,14 +43,16 @@ public class Enemy : Character {
         //更新数值
         //anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
         playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
-
+        Vector3 clampedVelocity = agent.velocity / agent.speed;
+        anim.SetFloat("Speed", clampedVelocity.magnitude);
+        anim.SetFloat("Direction", transform.rotation.eulerAngles.y / 90f);
         //状态机更新
         RunStateMachine();
     }
 
     public override float MakeDamage() {
         float dmg = 0;
-        switch (personality) { 
+        switch (personality) {
             case Personality.EatMelon:
                 dmg = Random.Range(0.8f, 1.2f);
                 break;
@@ -79,6 +81,7 @@ public class Enemy : Character {
 
     protected override void DeadTemplate() {
         collider.enabled = false;
+        agent.enabled = false;
     }
 
     //-------------------------STATE----------------------------------
@@ -96,8 +99,8 @@ public class Enemy : Character {
         Command curCmd;
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
-            //Debug.Log("enter idle state");
-            context.agent.enabled = false;
+            Debug.Log("enter idle state");
+            context.agent.enabled = true;
             curCmd = context.command;
         }
 
@@ -110,10 +113,21 @@ public class Enemy : Character {
         }
 
         public override EnemyState CheckTransition() {
+            Vector3 enemyPos = context.transform.position;
+            enemyPos.y = 1f;
+            Vector3 dir = (player.transform.position - enemyPos);
+            dir.y = 0;
+            //lookAtPos.y = 1f;
+            RaycastHit hit=new RaycastHit();
+            bool seePlayer = false;
+            if (Physics.Raycast(enemyPos, dir, out hit))
+                seePlayer = hit.collider.tag == "Player";
+            Debug.DrawRay(enemyPos, dir);
+            Debug.Log(seePlayer);
             switch (context.personality) {
                 case Personality.EatMelon:
                     //自身血量低于警戒值：逃跑
-                    if (context.HPPercent <= context.alarmHPPercent && context.playerDistance < context.alarmDistance)
+                    if (context.HPPercent <= context.alarmHPPercent && context.playerDistance < context.alarmDistance && seePlayer)
                         return new FleeState(context, player);
                     //主角在攻击范围内：攻击
                     if (context.playerDistance < context.attackDistance)
@@ -128,7 +142,7 @@ public class Enemy : Character {
                         return new AttackState(context, player);
                     break;
                 case Personality.Evil:
-                    if (context.playerDistance < context.alarmDistance)
+                    if (context.playerDistance < context.alarmDistance && seePlayer)
                         return new AttackState(context, player);
                     break;
             }
@@ -145,7 +159,7 @@ public class Enemy : Character {
         public FleeState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Flee; }
 
         public override void Enter() {
-            //Debug.Log("enter flee state");
+            Debug.Log("enter flee state");
             agent = context.agent;
 
             switch (context.personality) {
@@ -199,13 +213,13 @@ public class Enemy : Character {
         }
 
         public override void Enter() {
-            //Debug.Log("enter attack state");
+            Debug.Log("enter attack state");
             context.agent.destination = player.transform.position;
         }
 
         public override void Update() {
             if (state == AttackProcess.finding)
-                if (context.agent.remainingDistance < context.attackDistance) {
+                if (!context.agent.pathPending && context.agent.remainingDistance < context.attackDistance) {
                     //如果玩家已离开
                     if (context.playerDistance > context.attackDistance) {
                         state = AttackProcess.complete;
