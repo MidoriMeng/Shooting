@@ -89,6 +89,7 @@
     <Compile Include="Assets\Scripts\MouseLook.cs" />
     <Compile Include="Assets\Scripts\Player\Player.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerMovementControl.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerShoot.cs" />
     <Compile Include="Assets\Scripts\Player\UnityChanControlScriptWithRgidBody.cs" />
     <Compile Include="Assets\Scripts\TPSControl.cs" />
     <Compile Include="Assets\Scripts\Utils\AddObjects.cs" />
