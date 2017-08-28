@@ -13,7 +13,7 @@ using System.Collections;
 
 public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 {
-
+    public bool firstPerson = true;
 	public float animSpeed = 1.5f;				// アニメーション再生速度設定
 	public float lookSmoother = 3.0f;			// a smoothing setting for camera motion
 	public bool useCurves = true;				// Mecanimでカーブ調整を使うか設定する
@@ -68,10 +68,20 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 // 以下、メイン処理.リジッドボディと絡めるので、FixedUpdate内で処理を行う.
 	void FixedUpdate ()
 	{
-		float h = Input.GetAxis("Horizontal");				// 入力デバイスの水平軸をhで定義
-		float v = Input.GetAxis("Vertical");				// 入力デバイスの垂直軸をvで定義
+        float keyboardH = 0;
+        float mouseH = 0;
+        float v = Input.GetAxis("Vertical");				// 入力デバイスの垂直軸をvで定義
+        keyboardH = Input.GetAxis("Horizontal");
+        if (firstPerson) {
+            mouseH = Input.GetAxis("Mouse X"); 
+            velocity = new Vector3(keyboardH, 0, v).normalized;
+            Debug.Log(velocity);
+        }
+        else {				// 入力デバイスの水平軸をhで定義
+            velocity = new Vector3(0, 0, v);
+        }
 		anim.SetFloat("Speed", v);							// Animator側で設定している"Speed"パラメタにvを渡す
-		anim.SetFloat("Direction", h); 						// Animator側で設定している"Direction"パラメタにhを渡す
+		anim.SetFloat("Direction", keyboardH); 						// Animator側で設定している"Direction"パラメタにhを渡す
 		anim.speed = animSpeed;								// Animatorのモーション再生速度に animSpeedを設定する
 		currentBaseState = anim.GetCurrentAnimatorStateInfo(0);	// 参照用のステート変数にBase Layer (0)の現在のステートを設定する
 		rb.useGravity = true;//ジャンプ中に重力を切るので、それ以外は重力の影響を受けるようにする
@@ -79,15 +89,26 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		
 		
 		// 以下、キャラクターの移動処理
-		velocity = new Vector3(0, 0, v);		// 上下のキー入力からZ軸方向の移動量を取得
+		//velocity = new Vector3(0, 0, v);		// 上下のキー入力からZ軸方向の移動量を取得
 		// キャラクターのローカル空間での方向に変換
 		velocity = transform.TransformDirection(velocity);
 		//以下のvの閾値は、Mecanim側のトランジションと一緒に調整する
-		if (v > 0.1) {
-			velocity *= forwardSpeed;		// 移動速度を掛ける
-		} else if (v < -0.1) {
-			velocity *= backwardSpeed;	// 移動速度を掛ける
-		}
+        if (firstPerson) {
+            if (velocity.sqrMagnitude > 0.001f) {
+                if (v < -0.1f)
+                    velocity *= backwardSpeed;	// 移動速度を掛ける
+                else
+                    velocity *= forwardSpeed;		// 移動速度を掛ける
+            }
+        }
+        else {
+            if (v > 0.1) {
+                velocity *= forwardSpeed;		// 移動速度を掛ける
+            }
+            else if (v < -0.1) {
+                velocity *= backwardSpeed;	// 移動速度を掛ける
+            }
+        }
 		
 		if (Input.GetButtonDown("Jump")) {	// スペースキーを入力したら
 
@@ -107,7 +128,10 @@ public class UnityChanControlScriptWithRgidBody : MonoBehaviour
 		transform.localPosition += velocity * Time.fixedDeltaTime;
 
 		// 左右のキー入力でキャラクタをY軸で旋回させる
-		transform.Rotate(0, h * rotateSpeed, 0);	
+        if(firstPerson)
+		    transform.Rotate(0, mouseH * rotateSpeed, 0);
+        else
+            transform.Rotate(0, keyboardH * rotateSpeed, 0);
 	
 
 		// 以下、Animatorの各ステート中での処理
