@@ -72,7 +72,7 @@ public class PlayerShoot : MonoBehaviour {
             if (Physics.Raycast(shootRay, out shootHit, shootRange, shootableMask)) {
                 Enemy enemy = shootHit.collider.GetComponent<Enemy>();
                 if (enemy != null) {
-                    player.Attack(enemy/*, shootHit.point*/);
+                    player.Attack(enemy, shootHit.point);
                     gunLine.SetPosition(1, shootHit.point);
                 }
             }

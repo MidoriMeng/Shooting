@@ -22,6 +22,9 @@ public class Enemy : Character {
     private float guiltyPercentage = 0;
     Collider collider;
 
+    AudioSource enemyAudio;
+    ParticleSystem hitParticles;
+
     void Awake() {
         AwakeBase();
         alarmHPPercent = Random.Range(0.2f, 0.5f);
@@ -31,6 +34,8 @@ public class Enemy : Character {
         atk = 10f;
         def = 2f;
         collider = GetComponent<Collider>();
+        hitParticles = GetComponentInChildren<ParticleSystem>();
+        enemyAudio = GetComponent<AudioSource>();
     }
 
     void Start() {
@@ -66,10 +71,14 @@ public class Enemy : Character {
         return dmg * atk;
     }
 
-    public override void Attack(Character c) {
-        base.Attack(player);
+    public override void Attack(Character c, Vector3 pos) {
+        base.Attack(player, pos);
     }
 
+    protected override void TakeDamage(Vector3 hitPoint) {
+        hitParticles.transform.position = hitPoint;
+        hitParticles.Play();
+    }
     public void CompleteAttack() {
         AttackState s = curState as AttackState;
         s.AttackComplete();
@@ -100,12 +109,10 @@ public class Enemy : Character {
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
             Debug.Log("enter idle state");
-            context.agent.enabled = true;
             curCmd = context.command;
         }
 
         public override void Exit() {
-            context.agent.enabled = true;
         }
         public override void Update() {
             //执行Command
@@ -122,8 +129,7 @@ public class Enemy : Character {
             bool seePlayer = false;
             if (Physics.Raycast(enemyPos, dir, out hit))
                 seePlayer = hit.collider.tag == "Player";
-            Debug.DrawRay(enemyPos, dir);
-            Debug.Log(seePlayer);
+            //Debug.DrawRay(enemyPos, dir);
             switch (context.personality) {
                 case Personality.EatMelon:
                     //自身血量低于警戒值：逃跑

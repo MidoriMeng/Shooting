@@ -34,16 +34,17 @@ public class Character : MonoBehaviour {
     /// <returns></returns>
     public virtual float ReceiveDamage(float damage) { return damage - def; }
 
+    protected virtual void TakeDamage(Vector3 hitPoint) { }
     /// <summary>
     /// 产生伤害，敌人受到伤害
     /// </summary>
     /// <param name="c"></param>
-    public virtual void Attack(Character c/*, Vector3 point*/) {
+    public virtual void Attack(Character c, Vector3 point) {
         if (!c.dead) {
             float dmg = c.ReceiveDamage(MakeDamage());
             c.curHP -= Mathf.Clamp(dmg, 1, dmg);
             c.curHP = Mathf.Clamp(c.curHP, 0, c.maxHP);
-
+            c.TakeDamage(point);
             if (c.curHP == 0) {
                 c.Dead();
             }
