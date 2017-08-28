@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\Player\UnityChanControlScriptWithRgidBody.cs" />
     <Compile Include="Assets\Scripts\TPSControl.cs" />
     <Compile Include="Assets\Scripts\Utils\AddObjects.cs" />
+    <Compile Include="Assets\Scripts\Utils\AssignBlocks.cs" />
     <Compile Include="Assets\Scripts\Utils\Singleton.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +107,7 @@
     <None Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Models\UnityChanShader\Shader\Unitychan_chara_hair_ds.shader" />
     <None Include="Assets\Models\Shaders\Vertex Color.shader" />
     <None Include="Assets\Raw Mocap Data\Animations\_CompleteAnimationList.txt" />
+    <None Include="Assets\Scripts\Utils\53.txt" />
     <None Include="Assets\UnityChan\license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2012\UnityVS.CSharp.targets" />

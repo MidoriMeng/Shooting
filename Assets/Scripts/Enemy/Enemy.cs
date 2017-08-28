@@ -276,11 +276,11 @@ public class Enemy : Character {
         EatMelon, Evil, Coward
     };
 
-    public void OnDrawGizmos() {
+   /* public void OnDrawGizmos() {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, alarmDistance);
-    }
+    }*/
 }
 
