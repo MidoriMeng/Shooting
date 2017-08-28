@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Character : MonoBehaviour {
     protected float curHP = 50f;
-    protected float maxHP = 50f;
+    protected float _maxHP = 50f;
     public float alarmHPPercent;
-    protected float atk = 10f;
-    protected float def = 3f;
+    protected float _atk = 10f;
+    protected float _def = 3f;
     protected float selfHeal = 0.03f;
     protected bool dead = false;
+    protected int curLevel = 1;
 
     protected static int idleState = Animator.StringToHash("Base Layer.Dead");
 
@@ -71,4 +72,10 @@ public class Character : MonoBehaviour {
     public virtual void DeadComplete() {
         Destroy(gameObject);
     }
+
+    public bool isDead { get { return dead; } }
+
+    public float maxHP { get { return _maxHP * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
+    public float atk { get { return _atk * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
+    public float def { get { return _def * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
 }

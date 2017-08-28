@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TPSControl : MonoBehaviour {
-    Camera cam;
     Vector3 camPosOffset;
     Transform player;
 
-    void Awake() {
-        cam = GetComponent<Camera>();
-    }
 	void Start () {
         player = Player.Instance.transform;
         camPosOffset = transform.position - player.position;

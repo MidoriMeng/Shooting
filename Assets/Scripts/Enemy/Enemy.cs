@@ -7,6 +7,7 @@ public class Enemy : Character {
     public float Speed = 3f;
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
+    public float exp = 15f;
     /*public Transform goodWaitPos;
     public Transform badWaitPos;
     public Transform carPos;*/
@@ -31,8 +32,8 @@ public class Enemy : Character {
         command = new Command();
         //command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
         agent = GetComponent<NavMeshAgent>();
-        atk = 10f;
-        def = 2f;
+        _atk = 10f;
+        _def = 2f;
         collider = GetComponent<Collider>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
         enemyAudio = GetComponent<AudioSource>();
@@ -45,14 +46,16 @@ public class Enemy : Character {
     }
 
     void Update() {
-        //更新数值
-        //anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
-        playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
-        Vector3 clampedVelocity = agent.velocity / agent.speed;
-        anim.SetFloat("Speed", clampedVelocity.magnitude);
-        anim.SetFloat("Direction", transform.rotation.eulerAngles.y / 90f);
-        //状态机更新
-        RunStateMachine();
+        if (!dead) {
+            //更新数值
+            //anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
+            playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
+            Vector3 clampedVelocity = agent.velocity / agent.speed;
+            anim.SetFloat("Speed", clampedVelocity.magnitude);
+            anim.SetFloat("Direction", transform.rotation.eulerAngles.y / 90f);
+            //状态机更新
+            RunStateMachine();
+        }
     }
 
     public override float MakeDamage() {
