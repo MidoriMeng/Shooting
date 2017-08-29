@@ -70,7 +70,7 @@ public class Character : MonoBehaviour {
     protected virtual void DeadTemplate() { }
 
     public virtual void DeadComplete() {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     public bool isDead { get { return dead; } }

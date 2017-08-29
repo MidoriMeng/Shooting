@@ -8,6 +8,8 @@ public class Player : Character {
     //PlayerShoot shoot;
     float curExp = 0;
     float maxExp = 50f;
+    float craziness = 0.5f;
+    public float crazinessFallSpeed = 0.01f;
 
     void Awake () {
         AwakeBase();
@@ -22,6 +24,13 @@ public class Player : Character {
     }
 	
     void Update () {
+        if (!dead) {
+            craziness = Mathf.Lerp(craziness, 0f, Time.deltaTime * crazinessFallSpeed);
+            //Debug.Log(craziness);
+            if (craziness < 0.005f) {
+                Dead();
+            }
+        }
 	}
 
     void gainExp(float gain) {
@@ -40,7 +49,7 @@ public class Player : Character {
     public override void Attack(Character c, Vector3 point) {
         base.Attack(c, point);
         if (c.isDead) {
-            gainExp((c as Enemy).exp);
+            gainExp((c as Enemy).rewardExp);
         }
     }
 
@@ -51,7 +60,8 @@ public class Player : Character {
     }
 
     public override void DeadComplete() {
-        Debug.Log("dead");
+        Debug.Log("dead complete");
+        GamePlayManager.Instance.PlayerDead();
     }
 
     public static Player Instance { get { return _instance; } }

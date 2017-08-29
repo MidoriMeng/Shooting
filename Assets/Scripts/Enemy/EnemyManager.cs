@@ -103,5 +103,10 @@ public class EnemyManager : MonoBehaviour {
             //}
         }
     }
+
+    public void EnemyDead(Enemy enemy) {
+        GamePlayManager.Instance.AddScore(enemy.rewardExp);
+    }
+
     public static EnemyManager Instance { get { return _instance; } }
 }

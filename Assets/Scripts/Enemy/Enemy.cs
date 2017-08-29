@@ -7,7 +7,7 @@ public class Enemy : Character {
     public float Speed = 3f;
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
-    public float exp = 15f;
+    public int rewardExp = 15;
     float playerDistance = 0;
     Player player;
 
@@ -112,6 +112,11 @@ public class Enemy : Character {
     protected override void DeadTemplate() {
         collider.enabled = false;
         agent.enabled = false;
+    }
+
+    public override void DeadComplete() {
+        EnemyManager.Instance.EnemyDead(this);
+        EnemyManager.Instance.Recycle(this);
     }
 
     //-------------------------STATE----------------------------------
