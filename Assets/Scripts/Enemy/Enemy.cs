@@ -21,8 +21,12 @@ public class Enemy : Character {
     Collider collider;
     int hashID;
 
+    Color matColor;
+    public bool gazed = false;
+
     AudioSource enemyAudio;
     ParticleSystem hitParticles;
+    Renderer rend;
 
     void Awake() {
         AwakeBase();
@@ -33,6 +37,8 @@ public class Enemy : Character {
         collider = GetComponent<Collider>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
         enemyAudio = GetComponent<AudioSource>();
+        rend = GetComponentInChildren<Renderer>();
+        matColor = rend.material.GetColor("_Color");
         //Debug.Log("awake");
     }
 
@@ -46,7 +52,7 @@ public class Enemy : Character {
         dead = false;
         player = Player.Instance;
         curState = new IdleState(this, player);
-        Debug.Log("enabled");
+        //Debug.Log("enabled");
         curState.Enter();
     }
 
@@ -60,7 +66,14 @@ public class Enemy : Character {
             anim.SetFloat("Direction", transform.rotation.eulerAngles.y / 90f);
             //状态机更新
             RunStateMachine();
+
+            float factor = gazed ? (Mathf.Sin(Time.time * 2f) + 1f) * guiltyPercentage / 2f : 1f;
+            matColor = Color.Lerp(matColor, Color.white * factor, Time.deltaTime);
+            matColor.r = 1f;
+            rend.material.SetColor("_Color", matColor);
         }
+
+
     }
 
     public override float MakeDamage() {
@@ -115,7 +128,7 @@ public class Enemy : Character {
     public class IdleState : EnemyState {
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
-            Debug.Log("enter idle state");
+            //Debug.Log("enter idle state");
         }
 
         public override void Exit() {

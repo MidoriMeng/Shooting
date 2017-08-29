@@ -50,8 +50,13 @@ public class EnemyManager : MonoBehaviour {
         pool.Add(npObj);
         return npObj.obj;
     }
+
     void Start() {
         InvokeRepeating("Spawn", spawnTime, spawnTime * Random.Range(0.5f, 1.5f));
+    }
+
+    void Update() {
+        Gaze(Input.GetButton("Gaze"));
     }
 
     public void Spawn() {
@@ -65,7 +70,7 @@ public class EnemyManager : MonoBehaviour {
 
         Enemy enemy = obj.GetComponent<Enemy>();
         enemy.command = new GotoAndDisappear(destinations[spawnPointIndex].position, Command.TypeEnum.ComeUp);
-        Debug.Log("assign mission");
+        //Debug.Log("assign mission");
     }
 
     void ChangeEnemyAppearance(GameObject obj, Mesh mesh) {
@@ -88,6 +93,15 @@ public class EnemyManager : MonoBehaviour {
             Destroy(enemy.gameObject);
         }
 
+    }
+
+    public void Gaze(bool isOn) {
+        foreach (poolObject obj in pool) {
+            //if (obj.inUse) {
+            Enemy enemy = obj.obj.GetComponent<Enemy>();
+            enemy.gazed = isOn;
+            //}
+        }
     }
     public static EnemyManager Instance { get { return _instance; } }
 }
