@@ -13,9 +13,17 @@ public class AssignBlocks : MonoBehaviour {
 
     [ContextMenu("assgin blocks")]
     public void Assign() {
+        DeleteChildren();
         for (int mapIndex = 0; mapIndex < maps.Length; mapIndex++) {
             string map = maps[mapIndex].text;
             AssignMap(map, float.Parse(maps[mapIndex].name));
+        }
+    }
+
+    void DeleteChildren() {
+        Transform[] objs = scene.GetComponentsInChildren<Transform>();
+        for (int i = objs.Length - 1; i > 0; i--) {
+            DestroyImmediate(objs[i].gameObject);
         }
     }
 
@@ -30,10 +38,14 @@ public class AssignBlocks : MonoBehaviour {
             string[] col = row.Split(' ');
             for (int j = 0; j < colLen; j++) {
                 int objName = Int32.Parse(col[j]);
-                if (objName == 0)
-                    return;
-                GameObject obj = prefabs[objName];
-                GameObject.Instantiate(obj, new Vector3(i * blockLen, height, j * blockLen), Quaternion.identity, scene);
+                bool skip = false;
+                if (objName == 0) {
+                    skip = true;
+                }
+                if (!skip) {
+                    GameObject obj = prefabs[objName];
+                    GameObject.Instantiate(obj, new Vector3(i * blockLen, height, j * blockLen), Quaternion.identity, scene);
+                }
             }
         }
     }
