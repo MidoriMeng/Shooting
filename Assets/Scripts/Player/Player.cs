@@ -10,20 +10,24 @@ public class Player : Character {
     float maxExp = 50f;
     float craziness = 0.5f;
     public float crazinessFallSpeed = 0.01f;
+    float madAtkScale = 50000f;
+    float madSpeedScale = 2f;
+    float madCrazinessFallSpeedScale = 2f;
+    bool _isCrazy = false;
 
-    void Awake () {
+    void Awake() {
         AwakeBase();
         _instance = this;
-        _atk = 15f;
-        _def = 3f;
-        control = GetComponent<UnityChanControlScriptWithRgidBody>();        
-	}
+        baseAtk = 15f;
+        baseDef = 3f;
+        control = GetComponent<UnityChanControlScriptWithRgidBody>();
+    }
 
     void Start() {
         //shoot = GetComponentInChildren<PlayerShoot>();
     }
-	
-    void Update () {
+
+    void Update() {
         if (!dead) {
             craziness = Mathf.Lerp(craziness, 0f, Time.deltaTime * crazinessFallSpeed);
             //Debug.Log(craziness);
@@ -31,38 +35,63 @@ public class Player : Character {
                 Dead();
             }
         }
-	}
+    }
 
-    void gainExp(float gain) {
+    public void gainExp(float gain) {
         curExp += gain;
-        if (curExp >= maxExp) { 
+        if (curExp >= maxExp) {
             //level up
             curLevel++;
             curExp -= maxExp;
             maxExp *= 1.1f;
             maxExp = (int)maxExp;
             Debug.Log("level " + curLevel + "　　next level exp: " + maxExp);
-            curHP = maxHP; 
+            curHP = maxHP;
         }
     }
 
-    public override void Attack(Character c, Vector3 point) {
-        base.Attack(c, point);
-        if (c.isDead) {
-            gainExp((c as Enemy).rewardExp);
+    public void gainCraziness(float c) {
+        craziness += c;
+        craziness = Mathf.Clamp01(craziness);
+        if (craziness >= 1f)
+            _isCrazy = true;
+        if (isCrazy) {
+            EnterCrazy();
         }
     }
 
-    
+    void EnterCrazy() {
+        _isCrazy = true;
+        control.forwardSpeed *= madSpeedScale;
+        baseAtk *= madAtkScale;
+        crazinessFallSpeed *= madCrazinessFallSpeedScale;
+    }
+
+    public void ExitCrazy() {
+        _isCrazy = false;
+        control.forwardSpeed /= madSpeedScale;
+        baseAtk /= madAtkScale;
+        crazinessFallSpeed /= madCrazinessFallSpeedScale;
+    }
+
 
     protected override void DeadTemplate() {
         control.enabled = false;
     }
 
+    public void Revive() {
+        dead = false;
+        control.enabled = true;
+    }
+
     public override void DeadComplete() {
         Debug.Log("dead complete");
-        GamePlayManager.Instance.PlayerDead();
+        if (!isCrazy)
+            GamePlayManager.Instance.PlayerDead();
+        //else TODO
     }
+
+    public bool isCrazy { get { return _isCrazy; } }
 
     public static Player Instance { get { return _instance; } }
 }

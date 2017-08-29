@@ -8,6 +8,8 @@ public class Enemy : Character {
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
     public int rewardExp = 15;
+    public int rewardScore = 10;
+    public float rewardCraziness = 0.05f;
     float playerDistance = 0;
     Player player;
 
@@ -32,8 +34,8 @@ public class Enemy : Character {
         AwakeBase();
         command = new Command();
         agent = GetComponent<NavMeshAgent>();
-        _atk = 10f;
-        _def = 2f;
+        baseAtk = 10f;
+        baseDef = 2f;
         collider = GetComponent<Collider>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
         enemyAudio = GetComponent<AudioSource>();

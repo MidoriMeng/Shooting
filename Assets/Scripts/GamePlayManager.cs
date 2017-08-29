@@ -19,7 +19,6 @@ public class GamePlayManager : MonoBehaviour {
     void Awake() {
         DontDestroyOnLoad(gameObject);        
         _instance = this;
-        //load highScores
         
         Debug.Log("game settings awake");
     }

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Character : MonoBehaviour {
     protected float curHP = 50f;
-    protected float _maxHP = 50f;
+    protected float baseMaxHP = 50f;
     public float alarmHPPercent;
-    protected float _atk = 10f;
-    protected float _def = 3f;
+    protected float baseAtk = 10f;
+    protected float baseDef = 3f;
     protected float selfHeal = 0.03f;
     protected bool dead = false;
     protected int curLevel = 1;
@@ -75,7 +75,7 @@ public class Character : MonoBehaviour {
 
     public bool isDead { get { return dead; } }
 
-    public float maxHP { get { return _maxHP * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
-    public float atk { get { return _atk * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
-    public float def { get { return _def * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
+    public float maxHP { get { return baseMaxHP * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
+    public float atk { get { return baseAtk * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
+    public float def { get { return baseDef * (Mathf.Pow(1.1f, (float)(curLevel - 1))); } }
 }

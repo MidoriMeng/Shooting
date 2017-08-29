@@ -42,6 +42,9 @@ public class PlayerShoot : MonoBehaviour {
         if (timer >= timeBetweenBullets * effectsDisplayTime) {
             DisableEffects();
         }
+        if (Input.GetButtonDown("Reload")) {
+            Reload();
+        }
 	}
 
     public void DisableEffects() {

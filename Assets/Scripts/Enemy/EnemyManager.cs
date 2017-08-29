@@ -105,7 +105,10 @@ public class EnemyManager : MonoBehaviour {
     }
 
     public void EnemyDead(Enemy enemy) {
-        GamePlayManager.Instance.AddScore(enemy.rewardExp);
+        GamePlayManager.Instance.AddScore(enemy.rewardScore);
+        Player player = Player.Instance;
+        player.gainExp(enemy.rewardExp);
+        player.gainCraziness(enemy.rewardCraziness);
     }
 
     public static EnemyManager Instance { get { return _instance; } }
