@@ -10,15 +10,13 @@ public class Command {
     public virtual void Run(Enemy enemy) { }
 }
 
-public class GoAndWaitCmd : Command {
+public class GotoAndWait : Command {
     Vector3 waitPosition;
-    bool evil;
     public float guiltIncreaseSpeed = 0.001f;
-    public GoAndWaitCmd(Vector3 waitPos, bool evil, TypeEnum type) {
+    public GotoAndWait(Vector3 waitPos, TypeEnum type) {
         waitPosition = waitPos;
         commandType = type;
         completion = CompletionEnum.NotStarted;
-        this.evil = evil;
     }
 
     public override void Run(Enemy enemy) {
@@ -33,7 +31,34 @@ public class GoAndWaitCmd : Command {
                 agent.enabled = false;
             }
         }
-        else {
+        RunTemplate(enemy);
+    }
+
+    public virtual void RunTemplate(Enemy enemy) { }
+}
+
+public class GotoAndDisappear : GotoAndWait {
+    bool disappeared = false;
+    public GotoAndDisappear(Vector3 waitPos, TypeEnum type) : base(waitPos, type) { }
+    public override void RunTemplate(Enemy enemy) {
+        if (!disappeared) {
+            if (completion == CompletionEnum.Finished) {
+                EnemyManager.Instance.Recycle(enemy);
+                disappeared = true;
+            }
+        }
+    }
+}
+
+public class BadGotoAndWait : GotoAndWait {
+    bool evil;
+    public BadGotoAndWait(Vector3 waitPos, TypeEnum type)
+        : base(waitPos, type) {
+        this.evil = type == TypeEnum.BadWaitForCar ? true : false;
+    }
+
+    public override void RunTemplate(Enemy enemy) {
+        if (completion == CompletionEnum.Finished) {
             if (evil)
                 enemy.DoEvil(guiltIncreaseSpeed);//与普通等车区别在此：增加罪恶值
         }

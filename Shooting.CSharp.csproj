@@ -82,6 +82,7 @@
     <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\Enemy\Command.cs" />
     <Compile Include="Assets\Scripts\Enemy\Enemy.cs" />
+    <Compile Include="Assets\Scripts\Enemy\EnemyManager.cs" />
     <Compile Include="Assets\Scripts\GameSettings.cs" />
     <Compile Include="Assets\Scripts\Level0\WelcomePage.cs" />
     <Compile Include="Assets\Scripts\MouseLook.cs" />
@@ -105,9 +106,10 @@
     <None Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Models\UnityChanShader\Shader\Unitychan_chara_hada_blend.shader" />
     <None Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Models\UnityChanShader\Shader\Unitychan_chara_hair.shader" />
     <None Include="Assets\FightingUnityChan_FreeAsset\FightingUnityChan_FreeAsset\Models\UnityChanShader\Shader\Unitychan_chara_hair_ds.shader" />
+    <None Include="Assets\Models\Shaders\SurfaceVertexColor.shader" />
     <None Include="Assets\Models\Shaders\Vertex Color.shader" />
     <None Include="Assets\Raw Mocap Data\Animations\_CompleteAnimationList.txt" />
-    <None Include="Assets\Scripts\Utils\53.txt" />
+    <None Include="Assets\Scripts\Utils\0.txt" />
     <None Include="Assets\UnityChan\license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2012\UnityVS.CSharp.targets" />

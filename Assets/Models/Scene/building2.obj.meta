@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: c6ec2fd327b3e6f4fb0ae2448d7d8efe
-timeCreated: 1503824576
+guid: 1151fecd1af15b548b546ba5bbae1329
+timeCreated: 1503966949
 licenseType: Free
 ModelImporter:
   serializedVersion: 21
   fileIDToRecycleName:
-    100000: default
-    100002: //RootNode
-    400000: default
-    400002: //RootNode
+    100000: //RootNode
+    100002: default
+    400000: //RootNode
+    400002: default
     2300000: default
     3300000: default
     4300000: default
   materials:
-    importMaterials: 0
+    importMaterials: 1
     materialName: 0
     materialSearch: 1
   animations:
@@ -39,7 +39,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 0.1
+    globalScale: 0.23
     meshCompression: 0
     addColliders: 0
     importVisibility: 1
@@ -62,7 +62,7 @@ ModelImporter:
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 4
-  importAnimation: 1
+  importAnimation: 0
   copyAvatar: 0
   humanDescription:
     serializedVersion: 2

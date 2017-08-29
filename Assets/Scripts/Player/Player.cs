@@ -44,6 +44,10 @@ public class Player : Character {
         }
     }
 
+    public void Gaze() { 
+        
+    }
+
     protected override void DeadTemplate() {
         control.enabled = false;
     }

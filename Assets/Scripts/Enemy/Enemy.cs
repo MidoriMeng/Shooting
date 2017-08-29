@@ -8,9 +8,6 @@ public class Enemy : Character {
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
     public float exp = 15f;
-    /*public Transform goodWaitPos;
-    public Transform badWaitPos;
-    public Transform carPos;*/
     float playerDistance = 0;
     Player player;
 
@@ -22,26 +19,34 @@ public class Enemy : Character {
     public Command command;
     private float guiltyPercentage = 0;
     Collider collider;
+    int hashID;
 
     AudioSource enemyAudio;
     ParticleSystem hitParticles;
 
     void Awake() {
         AwakeBase();
-        alarmHPPercent = Random.Range(0.2f, 0.5f);
         command = new Command();
-        //command = new GoAndWaitCmd(waitPos.position, true, Command.TypeEnum.BadWaitForCar);
         agent = GetComponent<NavMeshAgent>();
         _atk = 10f;
         _def = 2f;
         collider = GetComponent<Collider>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
         enemyAudio = GetComponent<AudioSource>();
+        //Debug.Log("awake");
     }
 
     void Start() {
         player = Player.Instance;
+        //Debug.Log("Start");
+    }
+
+    void OnEnable() {
+        alarmHPPercent = Random.Range(0.2f, 0.5f);
+        dead = false;
+        player = Player.Instance;
         curState = new IdleState(this, player);
+        Debug.Log("enabled");
         curState.Enter();
     }
 
@@ -51,7 +56,7 @@ public class Enemy : Character {
             //anim.SetFloat("Speed", agent.velocity.magnitude / agent.speed);
             playerDistance = Vector3.Distance(Player.Instance.transform.position, transform.position);
             Vector3 clampedVelocity = agent.velocity / agent.speed;
-            anim.SetFloat("Speed", clampedVelocity.magnitude);
+            anim.SetFloat("Speed", curState.type == EnemyStateEnum.Attack ? 1 : 0.2f * clampedVelocity.magnitude);
             anim.SetFloat("Direction", transform.rotation.eulerAngles.y / 90f);
             //状态机更新
             RunStateMachine();
@@ -74,8 +79,8 @@ public class Enemy : Character {
         return dmg * atk;
     }
 
-    public override void Attack(Character c, Vector3 pos) {
-        base.Attack(player, pos);
+    public void EnemyAttack() {
+        base.Attack(player, Vector3.zero);
     }
 
     protected override void TakeDamage(Vector3 hitPoint) {
@@ -108,18 +113,25 @@ public class Enemy : Character {
     }
 
     public class IdleState : EnemyState {
-        Command curCmd;
         public IdleState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Idle; }
         public override void Enter() {
             Debug.Log("enter idle state");
-            curCmd = context.command;
         }
 
         public override void Exit() {
         }
         public override void Update() {
             //执行Command
-            curCmd.Run(context);
+            context.command.Run(context);
+            //Debug.Log(curCmd.commandType + "  " + curCmd.completion);
+            //Lazy();
+        }
+
+        void Lazy() {
+            if (Random.Range(0, 1) < 0.001f) {
+                context.anim.SetTrigger("Rest");
+                context.agent.enabled = false;
+            }
         }
 
         public override EnemyState CheckTransition() {
@@ -128,7 +140,7 @@ public class Enemy : Character {
             Vector3 dir = (player.transform.position - enemyPos);
             dir.y = 0;
             //lookAtPos.y = 1f;
-            RaycastHit hit=new RaycastHit();
+            RaycastHit hit = new RaycastHit();
             bool seePlayer = false;
             if (Physics.Raycast(enemyPos, dir, out hit))
                 seePlayer = hit.collider.tag == "Player";
@@ -276,11 +288,11 @@ public class Enemy : Character {
         EatMelon, Evil, Coward
     };
 
-   /* public void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, alarmDistance);
-    }*/
+    /* public void OnDrawGizmos() {
+         Gizmos.color = Color.red;
+         Gizmos.DrawWireSphere(transform.position, attackDistance);
+         Gizmos.color = Color.blue;
+         Gizmos.DrawWireSphere(transform.position, alarmDistance);
+     }*/
 }
 

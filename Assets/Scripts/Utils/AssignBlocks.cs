@@ -15,11 +15,11 @@ public class AssignBlocks : MonoBehaviour {
     public void Assign() {
         for (int mapIndex = 0; mapIndex < maps.Length; mapIndex++) {
             string map = maps[mapIndex].text;
-            AssignMap(map, Int32.Parse(maps[mapIndex].name));
+            AssignMap(map, float.Parse(maps[mapIndex].name));
         }
     }
 
-    void AssignMap(string map, int height) {
+    void AssignMap(string map, float height) {
         string[] rows = map.Split('\n');
         int rowLen = rows.Length;
         int colLen = rows[0].Split(' ').Length;
@@ -30,6 +30,8 @@ public class AssignBlocks : MonoBehaviour {
             string[] col = row.Split(' ');
             for (int j = 0; j < colLen; j++) {
                 int objName = Int32.Parse(col[j]);
+                if (objName == 0)
+                    return;
                 GameObject obj = prefabs[objName];
                 GameObject.Instantiate(obj, new Vector3(i * blockLen, height, j * blockLen), Quaternion.identity, scene);
             }
