@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class Enemy : Character {
+
     public float Speed = 3f;
     public float attackDistance = 1f;
     public float alarmDistance = 7f;
     public int rewardExp = 15;
     public int rewardScore = 10;
-    public float rewardCraziness = 0.05f;
+    public float rewardCraziness = 0.2f;
     float playerDistance = 0;
     Player player;
 
@@ -34,7 +35,7 @@ public class Enemy : Character {
         AwakeBase();
         command = new Command();
         agent = GetComponent<NavMeshAgent>();
-        baseAtk = 10f;
+        baseAtk = 3.5f;
         baseDef = 2f;
         collider = GetComponent<Collider>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
@@ -114,10 +115,10 @@ public class Enemy : Character {
     protected override void DeadTemplate() {
         collider.enabled = false;
         agent.enabled = false;
+        EnemyManager.Instance.EnemyDead(this);
     }
 
     public override void DeadComplete() {
-        EnemyManager.Instance.EnemyDead(this);
         EnemyManager.Instance.Recycle(this);
     }
 
@@ -200,7 +201,7 @@ public class Enemy : Character {
         public FleeState(Enemy enemy, Player player) : base(enemy, player) { type = EnemyStateEnum.Flee; }
 
         public override void Enter() {
-            Debug.Log("enter flee state");
+            //Debug.Log("enter flee state");
             agent = context.agent;
 
             switch (context.personality) {
@@ -254,7 +255,7 @@ public class Enemy : Character {
         }
 
         public override void Enter() {
-            Debug.Log("enter attack state");
+            //Debug.Log("enter attack state");
             context.agent.destination = player.transform.position;
         }
 
@@ -305,7 +306,7 @@ public class Enemy : Character {
     }
 
     public enum Personality {
-        EatMelon, Evil, Coward
+        EatMelon = 0, Evil = 1, Coward = 2
     };
 
     /* public void OnDrawGizmos() {

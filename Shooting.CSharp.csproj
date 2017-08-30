@@ -92,9 +92,13 @@
     <Compile Include="Assets\Scripts\Player\UnityChanControlScriptWithRgidBody.cs" />
     <Compile Include="Assets\Scripts\TPSControl.cs" />
     <Compile Include="Assets\Scripts\UI\BulletPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\GameOverPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\HighScorePanel.cs" />
+    <Compile Include="Assets\Scripts\UI\HPSlider.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\Utils\AddObjects.cs" />
     <Compile Include="Assets\Scripts\Utils\AssignBlocks.cs" />
+    <Compile Include="Assets\Scripts\Utils\ScoreManagement.cs" />
     <Compile Include="Assets\Scripts\Utils\Singleton.cs" />
   </ItemGroup>
   <ItemGroup>

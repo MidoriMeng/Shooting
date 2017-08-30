@@ -69,6 +69,7 @@ public class EnemyManager : MonoBehaviour {
         ChangeEnemyAppearance(obj, enemyMeshes[enemyIndex]);
 
         Enemy enemy = obj.GetComponent<Enemy>();
+        enemy.personality = (Enemy.Personality)Random.Range(0, 3);
         enemy.command = new GotoAndDisappear(destinations[spawnPointIndex].position, Command.TypeEnum.ComeUp);
         //Debug.Log("assign mission");
     }
@@ -108,7 +109,12 @@ public class EnemyManager : MonoBehaviour {
         GamePlayManager.Instance.AddScore(enemy.rewardScore);
         Player player = Player.Instance;
         player.gainExp(enemy.rewardExp);
+        player.gainScore(enemy.rewardScore);
         player.gainCraziness(enemy.rewardCraziness);
+    }
+
+    public void DestroyAllEnemies() {
+        allEnemies.ForEach(enemy => { Destroy(enemy.gameObject); });
     }
 
     public static EnemyManager Instance { get { return _instance; } }

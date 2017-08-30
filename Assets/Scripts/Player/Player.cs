@@ -7,10 +7,10 @@ public class Player : Character {
     UnityChanControlScriptWithRgidBody control;
     public PlayerShoot shoot;
     //PlayerShoot shoot;
-    float curExp = 0;
+    float _curExp = 0;
     float maxExp = 50f;
-    float craziness = 0.5f;
-    public float crazinessFallSpeed = 0.01f;
+    float _craziness = 0.5f;
+    public float crazinessFallSpeed = 0.05f;
     float madAtkScale = 50000f;
     float madSpeedScale = 2f;
     float madCrazinessFallSpeedScale = 2f;
@@ -30,20 +30,20 @@ public class Player : Character {
 
     void Update() {
         if (!dead) {
-            craziness = Mathf.Lerp(craziness, 0f, Time.deltaTime * crazinessFallSpeed);
+            _craziness = Mathf.Lerp(_craziness, 0f, Time.deltaTime * crazinessFallSpeed);
             //Debug.Log(craziness);
-            if (craziness < 0.005f) {
+            if (_craziness < 0.005f) {
                 Dead();
             }
         }
     }
 
     public void gainExp(float gain) {
-        curExp += gain;
-        if (curExp >= maxExp) {
+        _curExp += gain;
+        if (_curExp >= maxExp) {
             //level up
             curLevel++;
-            curExp -= maxExp;
+            _curExp -= maxExp;
             maxExp *= 1.1f;
             maxExp = (int)maxExp;
             Debug.Log("level " + curLevel + "　　next level exp: " + maxExp);
@@ -51,10 +51,15 @@ public class Player : Character {
         }
     }
 
+    public void gainScore(int gain) {
+        GamePlayManager.Instance.AddScore(gain);
+    }
+
     public void gainCraziness(float c) {
-        craziness += c;
-        craziness = Mathf.Clamp01(craziness);
-        if (craziness >= 1f)
+        _craziness += c;
+        Debug.Log(c);
+        _craziness = Mathf.Clamp01(_craziness);
+        if (_craziness >= 1f)
             _isCrazy = true;
         if (isCrazy) {
             EnterCrazy();
@@ -86,7 +91,6 @@ public class Player : Character {
     }
 
     public override void DeadComplete() {
-        Debug.Log("dead complete");
         if (!isCrazy) {
             anim.enabled = false;
             shoot.enabled = false;
@@ -99,5 +103,8 @@ public class Player : Character {
 
     public bool isCrazy { get { return _isCrazy; } }
 
+    public int Level { get { return curLevel; } }
+    public float craziness { get { return _craziness; } }
+    public int curExp { get { return (int)_curExp; } }
     public static Player Instance { get { return _instance; } }
 }

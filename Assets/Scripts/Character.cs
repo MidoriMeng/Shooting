@@ -51,7 +51,7 @@ public class Character : MonoBehaviour {
             }
             else
                 c.anim.SetTrigger("Light Damage");
-            Debug.Log(name + " attack " + c.name + ", damage: " + dmg);
+            //Debug.Log(name + " attack " + c.name + ", damage: " + dmg);
         }
     }
 

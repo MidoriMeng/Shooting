@@ -88,7 +88,7 @@ public class PlayerShoot : MonoBehaviour {
             curBullet--;
         }
         else
-            Debug.Log("no bullet");
+            UIManager.Instance.Toast("Press R to reload bullet");
     }
 
 
