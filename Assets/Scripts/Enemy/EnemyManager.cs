@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour {
     private static EnemyManager _instance;
+    public Transform spawnPoint;
     public int poolSize = 10;
     public GameObject enemyPrefab;
     public Material material;
@@ -27,8 +28,8 @@ public class EnemyManager : MonoBehaviour {
         pool = new List<poolObject>();
         for (int i = 0; i < poolSize; i++) {
             poolObject pObj;
-            pObj.obj = Instantiate(enemyPrefab);
-            pObj.obj.transform.SetParent(transform);
+            pObj.obj = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation, transform);
+            //pObj.obj.transform.SetParent(transform);
             pObj.obj.SetActive(false);
             pObj.hashID = pObj.obj.GetHashCode();
             pool.Add(pObj);
@@ -43,8 +44,8 @@ public class EnemyManager : MonoBehaviour {
             }
         }
         poolObject npObj;
-        npObj.obj = Instantiate(enemyPrefab);
-        npObj.obj.transform.SetParent(transform);
+        npObj.obj = Instantiate(enemyPrefab, spawnPoint.position, spawnPoint.rotation, transform);
+        //npObj.obj.transform.SetParent(transform);
         npObj.obj.SetActive(true);
         npObj.hashID = npObj.obj.GetHashCode();
         pool.Add(npObj);
@@ -66,11 +67,14 @@ public class EnemyManager : MonoBehaviour {
         GameObject obj = getPoolObject();
         obj.transform.position = spawnPoints[spawnPointIndex].position;
         obj.transform.rotation = spawnPoints[spawnPointIndex].rotation;
+        //Debug.Log(obj.transform.position);
         ChangeEnemyAppearance(obj, enemyMeshes[enemyIndex]);
 
         Enemy enemy = obj.GetComponent<Enemy>();
         enemy.personality = (Enemy.Personality)Random.Range(0, 3);
         enemy.command = new GotoAndDisappear(destinations[spawnPointIndex].position, Command.TypeEnum.ComeUp);
+        //obj.GetComponent<Rigidbody>().MovePosition(spawnPoints[spawnPointIndex].position);
+        //obj.GetComponent<Rigidbody>().MoveRotation(spawnPoints[spawnPointIndex].rotation);
         //Debug.Log("assign mission");
     }
 

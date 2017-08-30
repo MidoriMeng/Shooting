@@ -31,7 +31,7 @@ public class Player : Character {
     void Update() {
         if (!dead) {
             _craziness = Mathf.Lerp(_craziness, 0f, Time.deltaTime * crazinessFallSpeed);
-            //Debug.Log(craziness);
+            //Debug.Log(_craziness);
             if (_craziness < 0.005f) {
                 Dead();
             }
@@ -57,7 +57,7 @@ public class Player : Character {
 
     public void gainCraziness(float c) {
         _craziness += c;
-        Debug.Log(c);
+        //Debug.Log(c);
         _craziness = Mathf.Clamp01(_craziness);
         if (_craziness >= 1f)
             _isCrazy = true;

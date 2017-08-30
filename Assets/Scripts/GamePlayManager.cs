@@ -29,7 +29,7 @@ public class GamePlayManager : MonoBehaviour {
 
     public void AddScore(int score) {
         _curPlayerScore += score;
-        Debug.Log(_curPlayerScore);
+        //Debug.Log(_curPlayerScore);
     }
 
 

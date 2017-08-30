@@ -296,15 +296,7 @@ public class Enemy : Character {
     public enum EnemyStateEnum {
         Idle, Flee, Attack
     };
-
-    public enum Mood {
-        Normal, Angry, Frightened
-    }
-
-    public enum PersonaEnum {
-        EatMelon, Coward, Evil
-    }
-
+    
     public enum Personality {
         EatMelon = 0, Evil = 1, Coward = 2
     };
