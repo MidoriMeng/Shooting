@@ -11,6 +11,8 @@ public class GamePlayManager : MonoBehaviour {
     private int highestScore = 0;
     private List<ScoreStruct> highScores;
 
+    public MouseLook fpsCamera;
+
     public struct ScoreStruct {
         public string name;
         public int score;
@@ -19,8 +21,7 @@ public class GamePlayManager : MonoBehaviour {
     void Awake() {
         DontDestroyOnLoad(gameObject);        
         _instance = this;
-        
-        Debug.Log("game settings awake");
+        //Debug.Log("game settings awake");
     }
 
     List<ScoreStruct> LoadHighScores() {
@@ -61,8 +62,8 @@ public class GamePlayManager : MonoBehaviour {
         SceneManager.LoadScene(level);
     }
 
-    public void PlayerDead() { 
-
+    public void PlayerDead() {
+        fpsCamera.enabled = false;
     }
 
     public static GamePlayManager Instance { get { return _instance; } }

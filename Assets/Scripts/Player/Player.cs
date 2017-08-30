@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : Character {
     private static Player _instance;
     UnityChanControlScriptWithRgidBody control;
+    public PlayerShoot shoot;
     //PlayerShoot shoot;
     float curExp = 0;
     float maxExp = 50f;
@@ -21,10 +22,10 @@ public class Player : Character {
         baseAtk = 15f;
         baseDef = 3f;
         control = GetComponent<UnityChanControlScriptWithRgidBody>();
+        shoot = GetComponentInChildren<PlayerShoot>();
     }
 
     void Start() {
-        //shoot = GetComponentInChildren<PlayerShoot>();
     }
 
     void Update() {
@@ -86,8 +87,13 @@ public class Player : Character {
 
     public override void DeadComplete() {
         Debug.Log("dead complete");
-        if (!isCrazy)
+        if (!isCrazy) {
+            anim.enabled = false;
+            shoot.enabled = false;
+            control.enabled = false;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
             GamePlayManager.Instance.PlayerDead();
+        }
         //else TODO
     }
 

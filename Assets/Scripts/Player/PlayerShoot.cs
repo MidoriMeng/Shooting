@@ -8,7 +8,7 @@ public class PlayerShoot : MonoBehaviour {
     public float timeBetweenBullets = 0.15f;
     public float shootRange = 100f;
     float timer = 0f;
-    public int maxBullet = 5;
+    public int maxBullet = 30;
     public int curBullet;
 
     //Ray shootRay = new Ray();                       // A ray from the gun end forwards.
@@ -47,6 +47,9 @@ public class PlayerShoot : MonoBehaviour {
         }
 	}
 
+    void OnDisable() {
+        DisableEffects();
+    }
     public void DisableEffects() {
         gunLine.enabled = false;
         //faceLight.enabled = false;
